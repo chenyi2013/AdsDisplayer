@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.puji.adsdisplayer"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.PJ.0.1" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -27,20 +27,10 @@
 
         <receiver android:name=".receiver.USBReceiver" >
             <intent-filter>
-                <action android:name="android.intent.action.MEDIA_CHECKING" />
                 <action android:name="android.intent.action.MEDIA_MOUNTED" />
-                <action android:name="android.intent.action.MEDIA_EJECT" />
-                <action android:name="android.intent.action.MEDIA_REMOVED" />
 
                 <data android:scheme="file" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                android:resource="@xml/device_filter" />
         </receiver>
 
         <activity

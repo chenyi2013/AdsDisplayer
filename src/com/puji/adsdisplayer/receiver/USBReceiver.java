@@ -11,11 +11,6 @@ import com.puji.adsdisplayer.config.Config;
 
 public class USBReceiver extends BroadcastReceiver {
 
-	/**
-	 * USB存储设备插入时系统发出的广播
-	 */
-	private static final String USB_ATTACHED_ACTION = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
-
 	public USBReceiver() {
 	}
 
@@ -24,12 +19,6 @@ public class USBReceiver extends BroadcastReceiver {
 
 		switch (intent.getAction()) {
 
-		case USB_ATTACHED_ACTION:
-			break;
-
-		case Intent.ACTION_MEDIA_CHECKING:
-
-			break;
 		case Intent.ACTION_MEDIA_MOUNTED:
 
 			File file = new File(Config.USB_DIR_PATH);
@@ -42,15 +31,7 @@ public class USBReceiver extends BroadcastReceiver {
 			}
 
 			break;
-		case Intent.ACTION_MEDIA_EJECT:
-			System.out.println("ACTION_MEDIA_EJECT");
-			break;
-		case Intent.ACTION_MEDIA_REMOVED:
-			System.out.println("ACTION_MEDIA_REMOVED");
-			break;
 
-		default:
-			break;
 		}
 	}
 }

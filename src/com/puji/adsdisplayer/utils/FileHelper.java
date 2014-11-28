@@ -50,8 +50,7 @@ public class FileHelper {
 
 				if (files[i].isFile()
 						&& isValidImageSuffix(files[i].getAbsolutePath())
-						&& FileHelper.isValidImageFormat(files[i]
-								.getAbsolutePath())) {
+						&& isValidImageFormat(files[i].getAbsolutePath())) {
 					try {
 						input = new BufferedInputStream(new FileInputStream(
 								files[i]));
@@ -182,5 +181,25 @@ public class FileHelper {
 
 		return false;
 
+	}
+
+	/**
+	 * 删除指定目录下的所有文件
+	 * 
+	 * @param dir_path
+	 * @return
+	 */
+	public static boolean deleteFiles(String dir_path) {
+		File dir = new File(dir_path);
+		if (dir.exists() && dir.isDirectory()) {
+			File[] files = dir.listFiles();
+			for (File file : files) {
+				if (file.isFile()) {
+					file.delete();
+				}
+			}
+		}
+
+		return true;
 	}
 }

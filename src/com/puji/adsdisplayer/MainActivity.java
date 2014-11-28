@@ -21,25 +21,62 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
+import com.puji.adsdisplayer.config.Config;
 import com.puji.adsdisplayer.utils.BitmapHelper;
 import com.puji.adsdisplayer.utils.FileHelper;
 
+/**
+ * 用于展示广告的Activity
+ * 
+ * @author Administrator
+ * 
+ */
 public class MainActivity extends Activity {
 
+	/**
+	 * 当从U盘更新图片到设备的硬盘成功后会发送此action用来通知程序更新广告图片的数据源
+	 */
 	public static final String UPDATE_DATA_ACTION = "com.puji.adsdisplayer.UPDATE_DATA_ACTION";
 
+	/**
+	 * 用来标识此条消息用于处理计数器
+	 */
 	private static final int COUNTER_WHAT = 1;
+	/**
+	 * 用来标识此条消息用于更新数据源
+	 */
 	private static final int UPDATE_DATA_WHAT = 2;
 
-	ViewPager mViewPager;
-	ViewPagerAdater mAdater;
+	/**
+	 * ViewPager中更新广告图片的时间间隔
+	 */
+	private static final int SWITCH_IMAGE_DURATION = 10000;
 
+	/**
+	 * 用于显示广告图片的ViewPager
+	 */
+	private ViewPager mViewPager;
+	private ViewPagerAdater mAdater;
+
+	/**
+	 * 用于接收UPDATE_DATA_ACTION的广播接收者
+	 */
 	private UpdateDataReceiver mUpdateDataReceiver;
 
+	/**
+	 * 屏幕尺寸
+	 */
 	private Point screenSize;
+
+	/**
+	 * 用于存放广告图片的路径的数据源
+	 */
 	private String[] datas;
 
-	int index = 0;
+	/**
+	 * 展示的广告图片在数据源的索引
+	 */
+	private int index = 0;
 
 	@SuppressLint("HandlerLeak")
 	Handler mHandler = new Handler() {
@@ -51,14 +88,25 @@ public class MainActivity extends Activity {
 
 				index = index >= datas.length ? 0 : index;
 				mViewPager.setCurrentItem(index++);
-				sendEmptyMessageDelayed(COUNTER_WHAT, 3000);
+				sendEmptyMessageDelayed(COUNTER_WHAT, SWITCH_IMAGE_DURATION);
 				break;
 			case UPDATE_DATA_WHAT:
-
 				initData();
-				if (mAdater != null) {
-					mAdater.notifyDataSetChanged();
+				if (datas != null) {
+
+					if (mAdater != null) {
+						mAdater.notifyDataSetChanged();
+					} else {
+
+						mAdater = new ViewPagerAdater();
+						mViewPager.setAdapter(mAdater);
+						mAdater.notifyDataSetChanged();
+						sendEmptyMessageDelayed(COUNTER_WHAT,
+								SWITCH_IMAGE_DURATION);
+					}
+
 				}
+
 				break;
 
 			default:
@@ -73,40 +121,48 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
 		initData();
 		initView();
-		screenSize = getScreenSize();
+		registerReceiver();
+
+	}
+
+	private void registerReceiver() {
 		mUpdateDataReceiver = new UpdateDataReceiver();
 		IntentFilter intentFilter = new IntentFilter(UPDATE_DATA_ACTION);
 		LocalBroadcastManager.getInstance(this).registerReceiver(
 				mUpdateDataReceiver, intentFilter);
+	}
+
+	private void unRegisterReceiver() {
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(
+				mUpdateDataReceiver);
 
 	}
 
-	public void initData() {
-		File dir = FileHelper.getDiskCacheDir(this, "image");
+	private void initData() {
+		File dir = FileHelper.getDiskCacheDir(this, Config.IMAGE_CACHE_DIR);
 		if (dir.exists()) {
-			datas = FileHelper.getDiskCacheDir(this, "image").list();
+			datas = dir.list();
 			for (int i = 0; i < datas.length; i++) {
 				datas[i] = dir.getAbsolutePath() + File.separator + datas[i];
-				System.out.println(datas[i]);
 			}
 		}
 	}
 
-	public void initView() {
+	private void initView() {
 
+		screenSize = getScreenSize();
 		mViewPager = (ViewPager) findViewById(R.id.view_pager);
-		mAdater = new ViewPagerAdater();
 		if (datas != null) {
+			mAdater = new ViewPagerAdater();
 			mViewPager.setAdapter(mAdater);
 			mHandler.sendEmptyMessage(COUNTER_WHAT);
 		}
 
 	}
 
-	public Point getScreenSize() {
+	private Point getScreenSize() {
 		Point outSize = new Point();
 		getWindowManager().getDefaultDisplay().getSize(outSize);
 		return outSize;
@@ -165,8 +221,6 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		LocalBroadcastManager.getInstance(this).unregisterReceiver(
-				mUpdateDataReceiver);
+		unRegisterReceiver();
 	}
-
 }

@@ -16,5 +16,6 @@
     <string name="copy_file_fail">拷贝文件失败\n</string>
     <string name="file_fail">拷贝文件失败\n</string>
     <string name="dir_inexistence">U盘中不存在%1$s目录\n</string>
+    <string name="dir_not_file">U盘中%1$s目录下没有文件\n</string>
 
 </resources>
